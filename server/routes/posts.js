@@ -1,20 +1,58 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
 const db = require("../db");
 const router = express.Router();
 
-// POST /post — Create a new post
-router.post("/post", (req, res) => {
-  const { username, title, body } = req.body;
-  const likes = req.body.likes ?? 0;
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.jpg' || ext === '.jpeg' || ext === '.png') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .jpg, .jpeg, .png files allowed'));
+    }
+  }
+});
+
+// POST /post — Create a new post (handles both JSON and FormData)
+router.post("/post", upload.single('image'), (req, res) => {
+  let username, title, body;
+  
+  // Handle both JSON and FormData
+  if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+    // JSON request
+    ({ username, title, body } = req.body);
+  } else {
+    // FormData request
+    username = req.body.username;
+    title = req.body.title;
+    body = req.body.body;
+  }
+  
+  const likes = 0;
+  const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!username || !title || !body) {
-
     return res.status(400).json({ error: "All fields required" });
   }
 
   db.run(
-    "INSERT INTO posts (username, title, body, likes) VALUES (?, ?, ?, ?)",
-    [username, title, body, likes],
+    "INSERT INTO posts (username, title, body, likes, image_url) VALUES (?, ?, ?, ?, ?)",
+    [username, title, body, likes, imageUrl],
     function (err) {
       if (err) {
         console.error("DB insert error:", err);
@@ -28,6 +66,7 @@ router.post("/post", (req, res) => {
           title,
           body,
           likes,
+          imageUrl,
         },
       });
     }
@@ -60,7 +99,14 @@ router.get("/post/:username", (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
 
-    res.json({ posts: rows });
+    // Transform the data to use consistent field names
+    const posts = rows.map(post => ({
+      ...post,
+      imageUrl: post.image_url, // Map image_url to imageUrl
+      image_url: undefined // Remove the original field
+    }));
+
+    res.json({ posts });
   });
 });
 
@@ -80,6 +126,8 @@ router.get("/posts", (req, res) => {
 
         const result = posts.map((post) => ({
           ...post,
+          imageUrl: post.image_url, // Map image_url to imageUrl
+          image_url: undefined, // Remove the original field
           comments: comments.filter((c) => c.post_id === post.id),
         }));
         res.json({ posts: result });

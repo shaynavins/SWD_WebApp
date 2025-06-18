@@ -9,7 +9,8 @@ db.serialize(() => {
       username TEXT NOT NULL,
       title TEXT NOT NULL,
       body TEXT NOT NULL,
-      likes INTEGER DEFAULT 0
+      likes INTEGER DEFAULT 0,
+      image_url TEXT
     )
   `, (err) => {
     if (err) console.error("❌ Error creating posts table:", err);
