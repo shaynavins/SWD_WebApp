@@ -5,13 +5,16 @@ const router = express.Router();
 // POST /post — Create a new post
 router.post("/post", (req, res) => {
   const { username, title, body } = req.body;
+  const likes = req.body.likes ?? 0;
+
   if (!username || !title || !body) {
+
     return res.status(400).json({ error: "All fields required" });
   }
 
   db.run(
-    "INSERT INTO posts (username, title, body) VALUES (?, ?, ?)",
-    [username, title, body],
+    "INSERT INTO posts (username, title, body, likes) VALUES (?, ?, ?, ?)",
+    [username, title, body, likes],
     function (err) {
       if (err) {
         console.error("DB insert error:", err);
@@ -24,8 +27,25 @@ router.post("/post", (req, res) => {
           username,
           title,
           body,
+          likes,
         },
       });
+    }
+  );
+});
+
+router.put("/post/:id/like", (req, res) => {
+  const { id } = req.params;
+
+  db.run(
+    "UPDATE posts SET likes = likes + 1 WHERE id = ?",
+    [id],
+    function (err) {
+      if (err) {
+        console.error("Like error:", err);
+        return res.status(500).json({ error: "Failed to like post" });
+      }
+      res.json({ message: "Post liked" });
     }
   );
 });
