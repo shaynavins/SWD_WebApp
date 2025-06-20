@@ -6,7 +6,9 @@ const router = express.Router();
 
 router.post("/signup", async (req, res) => {
   const { username, password, role } = req.body;
-
+  if (!["poster", "viewer"].includes(role)) {
+    return res.status(400).json({ error: "Invalid role selected" });
+  }
   const hashed = await bcrypt.hash(password, 10);
 
   db.run(

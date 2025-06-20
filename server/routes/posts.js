@@ -157,4 +157,30 @@ router.post("/comment", (req, res) => {
   );
 });
 
+
+router.get("/api/posts", (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  // Get total count of posts
+  db.get("SELECT COUNT(*) AS count FROM posts", (err, countRow) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+
+    const total = countRow.count;
+    const hasMore = page * limit < total;
+
+    // Now fetch the paginated posts
+    db.all("SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", [limit, offset], (err, rows) => {
+      if (err) return res.status(500).json({ error: "Database error" });
+
+      res.json({
+        posts: rows,
+        hasMore: hasMore
+      });
+    });
+  });
+});
+
+
 module.exports = router;
