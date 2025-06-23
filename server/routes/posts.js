@@ -182,5 +182,15 @@ router.get("/api/posts", (req, res) => {
   });
 });
 
+// GET /posters — Get all poster usernames
+router.get("/posters", (req, res) => {
+  db.all("SELECT username FROM users WHERE role = 'poster'", [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error" });
+    }
+    const usernames = rows.map(row => row.username);
+    res.json({ posters: usernames });
+  });
+});
 
 module.exports = router;

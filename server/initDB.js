@@ -2,7 +2,7 @@ const db = require("./db");
 
 db.serialize(() => {
   // Drop and recreate posts table to ensure schema is correct
-  db.run(`DROP TABLE IF EXISTS posts`);
+  //db.run(`DROP TABLE IF EXISTS posts`);
   db.run(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,8 +17,7 @@ db.serialize(() => {
     else console.log("✅ Posts table recreated.");
   });
 
-  // Drop and recreate comments table to ensure schema is correct
-  db.run(`DROP TABLE IF EXISTS comments`);
+  //db.run(`DROP TABLE IF EXISTS comments`);
   db.run(`
     CREATE TABLE IF NOT EXISTS comments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
