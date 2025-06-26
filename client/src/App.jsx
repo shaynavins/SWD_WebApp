@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Poster from './pages/Poster';
 import Viewer from './pages/Viewer';
+import Subscribe from './pages/Subscribe';
 
 function App() {
 
@@ -19,6 +20,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/poster" element={<Poster />} />
           <Route path="/viewer" element={<Viewer />} />
+          <Route path="/subscribe" element={<Subscribe />} />
+
         </Routes>
       </BrowserRouter>
       

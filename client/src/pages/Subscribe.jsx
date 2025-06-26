@@ -57,7 +57,6 @@ export default function Subscribe() {
             <li key={username}>
                 {username}
                 <button onClick={() => handleSubscribe(username)}>
-                    Subscribe
                 </button> 
             </li>
             

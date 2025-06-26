@@ -44,6 +44,19 @@ db.serialize(() => {
     if (err) console.error("❌ Error creating users table:", err);
     else console.log("✅ Users table ready.");
   });
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS subscriptions (
+      subscriber_username TEXT NOT NULL,
+      poster_username TEXT NOT NULL,
+      PRIMARY KEY (subscriber_username, poster_username),
+      FOREIGN KEY (subscriber_username) REFERENCES users(username),
+      FOREIGN KEY (poster_username) REFERENCES users(username)
+    )
+  `, (err) => {
+    if (err) console.error("❌ Error creating subscriptions table:", err);
+    else console.log("✅ Subscriptions table ready.");
+  });
 });
 
 module.exports = db;

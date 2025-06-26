@@ -6,6 +6,7 @@ const path = require("path");
 const signup = require("./auth/signup");
 const login = require("./auth/login");
 const postRoutes = require("./routes/posts");
+const subscriptionRoutes = require('./routes/subscribe');
 const db = require("./initDB");
 const { authenticateToken, authorizeRoles } = require("./auth/middleware");
 
@@ -44,9 +45,10 @@ app.use(express.json());
 // ✅ Serve static image files
 app.use('/uploads', express.static('uploads'));
 
-app.use(signup);
-app.use(login);
+app.use('/api', signup);
+app.use('/api', login);
 app.use("/api", postRoutes); // e.g., /api/post
+app.use("/api", subscriptionRoutes); // e.g., /api/subscribe
 
 // ✅ Protected routes
 app.get("/protected", authenticateToken, (req, res) => {
