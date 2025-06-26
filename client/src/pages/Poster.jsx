@@ -4,6 +4,7 @@ export default function Poster() {
   const [username, setUsername] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
   const [posts, setPosts] = useState([]);
 
@@ -34,11 +35,18 @@ export default function Poster() {
       return;
     }
 
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("title", title);
+    formData.append("body", body);
+    if (image) {
+      formData.append("image", image);
+    }
+
     try {
       const res = await fetch("http://localhost:8080/api/post", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, title, body }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -47,6 +55,7 @@ export default function Poster() {
         setMessage(`✅ Post created: ${data.post.title}`);
         setTitle("");
         setBody("");
+        setImage(null);
         fetchPosts();
       } else {
         setMessage(`❌ Error: ${data.error || "Failed to create post"}`);
@@ -91,6 +100,10 @@ export default function Poster() {
         onChange={(e) => setBody(e.target.value)}
         placeholder="Post body"
       /><br />
+      <input 
+        type="file" 
+        onChange={(e) => setImage(e.target.files[0])} 
+      /><br />
       <button onClick={createPost}>Create Post</button>
 
       {message && <p>{message}</p>}
@@ -104,6 +117,7 @@ export default function Poster() {
             <li key={post.id}>
               <strong>{post.title}</strong><br />
               {post.body}
+              {post.imageUrl && <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} style={{maxWidth: '200px'}} />}
             </li>
           ))}
         </ul>

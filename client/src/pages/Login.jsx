@@ -20,7 +20,7 @@ export default function Login() {
     setErrorMsg("");
 
     try {
-      const res = await fetch("http://localhost:8080/login", {
+      const res = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -36,9 +36,9 @@ export default function Login() {
         const role = payload.role;
 
         if (role === "poster") {
-          window.location.href = "/poster";
+          navigate("/poster");
         } else if (role === "viewer") {
-          window.location.href = "/viewer";
+          navigate("/viewer");
         } else {
           setErrorMsg("Unknown role.");
         }

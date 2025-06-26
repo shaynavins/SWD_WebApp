@@ -9,9 +9,8 @@ const postRoutes = require("./routes/posts");
 const db = require("./initDB");
 const { authenticateToken, authorizeRoles } = require("./auth/middleware");
 
-const app = express(); // ✅ Declare app before using it
+const app = express(); 
 
-// 🔧 Image upload storage config
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -87,7 +86,6 @@ app.post("/create-post", upload.single('image'), (req, res) => {
   );
 });
 
-// ✅ Start server
 app.listen(8080, () => {
   console.log("Server started on http://localhost:8080");
 });
