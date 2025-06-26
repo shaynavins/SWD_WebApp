@@ -27,7 +27,6 @@ export default function Signup() {
 
       if (res.ok) {
         alert(`Successfully signed up as ${data.username}!`);
-        // Clear form
         setUsername("");
         setPassword("");
         setRole("poster");

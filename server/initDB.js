@@ -13,8 +13,8 @@ db.serialize(() => {
       image_url TEXT
     )
   `, (err) => {
-    if (err) console.error("❌ Error creating posts table:", err);
-    else console.log("✅ Posts table recreated.");
+    if (err) console.error("Error creating posts table:", err);
+    else console.log("Posts table recreated.");
   });
 
   //db.run(`DROP TABLE IF EXISTS comments`);
@@ -28,8 +28,8 @@ db.serialize(() => {
       FOREIGN KEY (post_id) REFERENCES posts(id)
     )
   `, (err) => {
-    if (err) console.error("❌ Error creating comments table:", err);
-    else console.log("✅ Comments table ready.");
+    if (err) console.error("Error creating comments table:", err);
+    else console.log("Comments table ready.");
   });
 
   // Users table (no need to drop if you want to keep users)
@@ -41,8 +41,8 @@ db.serialize(() => {
       role TEXT NOT NULL
     )
   `, (err) => {
-    if (err) console.error("❌ Error creating users table:", err);
-    else console.log("✅ Users table ready.");
+    if (err) console.error("Error creating users table:", err);
+    else console.log("Users table ready.");
   });
 
   db.run(`
@@ -54,8 +54,8 @@ db.serialize(() => {
       FOREIGN KEY (poster_username) REFERENCES users(username)
     )
   `, (err) => {
-    if (err) console.error("❌ Error creating subscriptions table:", err);
-    else console.log("✅ Subscriptions table ready.");
+    if (err) console.error("Error creating subscriptions table:", err);
+    else console.log("Subscriptions table ready.");
   });
 });
 

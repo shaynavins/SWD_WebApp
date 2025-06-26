@@ -31,7 +31,6 @@ export default function Login() {
       if (res.ok && data.token) {
         localStorage.setItem("token", data.token);
         
-        // Decode token to get user info
         const payload = JSON.parse(atob(data.token.split(".")[1]));
         const role = payload.role;
 

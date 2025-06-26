@@ -9,10 +9,15 @@ import Login from "./pages/Login";
 import Poster from './pages/Poster';
 import Viewer from './pages/Viewer';
 import Subscribe from './pages/Subscribe';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
+
 
 function App() {
 
   return (
+    <QueryClientProvider client={queryClient}>
     <>
       <BrowserRouter>
         <Routes>
@@ -26,6 +31,7 @@ function App() {
       </BrowserRouter>
       
     </>
+    </QueryClientProvider>
   )
 }
 

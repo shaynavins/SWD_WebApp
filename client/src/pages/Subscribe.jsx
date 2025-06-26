@@ -50,7 +50,7 @@ export default function Subscribe() {
     };
     return (
             <div>
-        <h2>All Poster Usernames</h2>
+        <h2>Subscribe to:</h2>
         {error && <p style={{ color: "red" }}>{error}</p>}
         <ul>
             {posters.map((username) => (

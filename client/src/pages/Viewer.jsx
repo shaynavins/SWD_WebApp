@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
+import { useInfiniteQuery } from "@tanstack/react-query";
+
 export default function Viewer() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ export default function Viewer() {
     }
   }, []);
 
-  const fetchPosts = async (pageNum) => {
+  /* const fetchPosts = async (pageNum) => {
     setLoading(true);
     try {
       const res = await fetch(`http://localhost:8080/api/posts?page=${pageNum}`);
@@ -38,10 +40,31 @@ export default function Viewer() {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchPosts(page);
-  }, [page]);
+  }, [page]); */
+
+  const {
+    data,
+    error: queryError,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await fetch(`http://localhost:8080/api/posts?page=${pageParam}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.hasMore ? pages.length + 1 : undefined;
+    },
+    staleTime: 5 * 60 * 1000, // 5 mins
+  });
 
   const handleLike = async (postId) => {
     try {
@@ -67,8 +90,7 @@ export default function Viewer() {
       });
 
       if (res.ok) {
-        // Refetch all posts to show the new comment for simplicity
-        // A better implementation would update the specific post's comments
+       
         fetchPosts(1); 
         setPage(1);
         setCommentText('');
@@ -89,8 +111,9 @@ export default function Viewer() {
     <div>
       <h2>Feed</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {queryError && <p style={{ color: 'red' }}>{queryError.message}</p>}
       
-      {posts.map(post => (
+      {data?.pages?.flatMap(page => page.posts).map(post => (
         <div key={post.id} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
           <h3>{post.title}</h3>
           <p>by <em>{post.username}</em></p>
@@ -123,13 +146,14 @@ export default function Viewer() {
         </div>
       ))}
 
-      {loading && <p>Loading posts...</p>}
+      {isLoading && <p>Loading posts...</p>}
+      {isFetchingNextPage && <p>Loading more...</p>}
       
-      {!loading && hasMore && (
-        <button onClick={loadMore}>Load More</button>
+      {hasNextPage && !isLoading && (
+        <button onClick={() => fetchNextPage()}>Load More</button>
       )}
 
-      {!hasMore && <p>No more posts.</p>}
+      {!hasNextPage && <p>No more posts.</p>}
     </div>
   );
 }

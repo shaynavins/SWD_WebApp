@@ -4,7 +4,6 @@ const path = require("path");
 const db = require("../db");
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -28,16 +27,12 @@ const upload = multer({
   }
 });
 
-// POST /post — Create a new post (handles both JSON and FormData)
 router.post("/post", upload.single('image'), (req, res) => {
   let username, title, body;
   
-  // Handle both JSON and FormData
   if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
-    // JSON request
     ({ username, title, body } = req.body);
   } else {
-    // FormData request
     username = req.body.username;
     title = req.body.title;
     body = req.body.body;
@@ -50,27 +45,44 @@ router.post("/post", upload.single('image'), (req, res) => {
     return res.status(400).json({ error: "All fields required" });
   }
 
-  db.run(
-    "INSERT INTO posts (username, title, body, likes, image_url) VALUES (?, ?, ?, ?, ?)",
-    [username, title, body, likes, imageUrl],
-    function (err) {
-      if (err) {
-        console.error("DB insert error:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.status(201).json({
-        message: "Post created",
-        post: {
-          id: this.lastID,
-          username,
-          title,
-          body,
-          likes,
-          imageUrl,
-        },
-      });
+  db.get("SELECT created_at FROM posts WHERE username = ? ORDER BY created_at DESC LIMIT 1", [username], (err, row) => {
+    if (err) {
+      console.error("DB select error for rate limit:", err);
+      return res.status(500).json({ error: "Database error" });
     }
-  );
+
+    if (row) {
+      const lastPostTime = new Date(row.created_at);
+      const now = new Date();
+      const diffInMinutes = (now - lastPostTime) / (1000 * 60);
+      
+      if (diffInMinutes < 1) {
+        return res.status(429).json({ error: "You can only post once every minute." });
+      }
+    }
+
+    db.run(
+      "INSERT INTO posts (username, title, body, likes, image_url) VALUES (?, ?, ?, ?, ?)",
+      [username, title, body, likes, imageUrl],
+      function (err) {
+        if (err) {
+          console.error("DB insert error:", err);
+          return res.status(500).json({ error: "Database error" });
+        }
+        res.status(201).json({
+          message: "Post created",
+          post: {
+            id: this.lastID,
+            username,
+            title,
+            body,
+            likes,
+            imageUrl,
+          },
+        });
+      }
+    );
+  });
 });
 
 router.put("/post/:id/like", (req, res) => {
@@ -89,7 +101,6 @@ router.put("/post/:id/like", (req, res) => {
   );
 });
 
-// GET /post/:username — Get posts by a user
 router.get("/post/:username", (req, res) => {
   const { username } = req.params;
 
@@ -99,18 +110,16 @@ router.get("/post/:username", (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
 
-    // Transform the data to use consistent field names
     const posts = rows.map(post => ({
       ...post,
-      imageUrl: post.image_url, // Map image_url to imageUrl
-      image_url: undefined // Remove the original field
+      imageUrl: post.image_url, 
+      image_url: undefined 
     }));
 
     res.json({ posts });
   });
 });
 
-// GET /posts — Get all posts with comments
 router.get("/posts", (req, res) => {
   db.all("SELECT * FROM posts", [], (err, posts) => {
     if (err) return res.status(500).json({ error: "Failed to fetch posts" });
@@ -126,8 +135,8 @@ router.get("/posts", (req, res) => {
 
         const result = posts.map((post) => ({
           ...post,
-          imageUrl: post.image_url, // Map image_url to imageUrl
-          image_url: undefined, // Remove the original field
+          imageUrl: post.image_url, 
+          image_url: undefined, 
           comments: comments.filter((c) => c.post_id === post.id),
         }));
         res.json({ posts: result });
@@ -136,7 +145,6 @@ router.get("/posts", (req, res) => {
   });
 });
 
-// POST /comment — Add a comment
 router.post("/comment", (req, res) => {
   const { post_id, username, text } = req.body;
   if (!post_id || !username || !text) {
@@ -198,7 +206,6 @@ router.get("/api/posts", (req, res) => {
   });
 });
 
-// GET /posters — Get all poster usernames
 router.get("/posters", (req, res) => {
   db.all("SELECT username FROM users WHERE role = 'poster'", [], (err, rows) => {
     if (err) {

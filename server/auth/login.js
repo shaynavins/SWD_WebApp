@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const db = require("../db");
 
 const router = express.Router();
-const JWT_SECRET = "super-secret-key"; // put this in .env later
+const JWT_SECRET = "super-secret-key"; 
 
 router.post("/login", (req, res) => {
   const { username, password } = req.body;

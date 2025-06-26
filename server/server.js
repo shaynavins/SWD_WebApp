@@ -35,22 +35,19 @@ const upload = multer({
   }
 });
 
-// ✅ Middleware setup
 app.use(cors({
   origin: ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
 }));
 app.use(express.json());
 
-// ✅ Serve static image files
 app.use('/uploads', express.static('uploads'));
 
 app.use('/api', signup);
 app.use('/api', login);
-app.use("/api", postRoutes); // e.g., /api/post
-app.use("/api", subscriptionRoutes); // e.g., /api/subscribe
+app.use("/api", postRoutes); 
+app.use("/api", subscriptionRoutes); 
 
-// ✅ Protected routes
 app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is protected", user: req.user });
 });
@@ -59,7 +56,6 @@ app.get("/admin-only", authenticateToken, authorizeRoles("admin"), (req, res) =>
   res.json({ message: "Welcome, admin!" });
 });
 
-// ✅ Image-based post creation endpoint
 app.post("/create-post", upload.single('image'), (req, res) => {
   const { title, content, userId, role } = req.body;
 
