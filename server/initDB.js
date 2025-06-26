@@ -1,8 +1,7 @@
 const db = require("./db");
 
 db.serialize(() => {
-  // Drop and recreate posts table to ensure schema is correct
-  //db.run(`DROP TABLE IF EXISTS posts`);
+  
   db.run(`
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -10,14 +9,15 @@ db.serialize(() => {
       title TEXT NOT NULL,
       body TEXT NOT NULL,
       likes INTEGER DEFAULT 0,
-      image_url TEXT
+      image_url TEXT,
+      scheduled_time TEXT,
+      is_published INTEGER DEFAULT 0
     )
   `, (err) => {
     if (err) console.error("Error creating posts table:", err);
     else console.log("Posts table recreated.");
   });
 
-  //db.run(`DROP TABLE IF EXISTS comments`);
   db.run(`
     CREATE TABLE IF NOT EXISTS comments (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,6 @@ db.serialize(() => {
     else console.log("Comments table ready.");
   });
 
-  // Users table (no need to drop if you want to keep users)
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

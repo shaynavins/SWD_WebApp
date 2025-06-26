@@ -7,8 +7,8 @@ export default function Poster() {
   const [image, setImage] = useState(null);
   const [message, setMessage] = useState("");
   const [posts, setPosts] = useState([]);
+  const [scheduledTime, setScheduledTime] = useState("");
 
-  // Extract username from JWT token
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -41,6 +41,9 @@ export default function Poster() {
     formData.append("body", body);
     if (image) {
       formData.append("image", image);
+    }
+    if (scheduledTime) {
+      formData.append("scheduled_time", scheduledTime);
     }
 
     try {
@@ -104,6 +107,13 @@ export default function Poster() {
         type="file" 
         onChange={(e) => setImage(e.target.files[0])} 
       /><br />
+      <input
+        type="datetime-local"
+        value={scheduledTime}
+        onChange={e => setScheduledTime(e.target.value)}
+        style={{ marginBottom: 10 }}
+      />
+      <label style={{ marginLeft: 8 }}>Scheduled Time (optional)</label>
       <button onClick={createPost}>Create Post</button>
 
       {message && <p>{message}</p>}
@@ -118,6 +128,11 @@ export default function Poster() {
               <strong>{post.title}</strong><br />
               {post.body}
               {post.imageUrl && <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} style={{maxWidth: '200px'}} />}
+              {post.scheduled_time && (
+                <div style={{ color: "#888", fontSize: 13, marginBottom: 4 }}>
+                  Scheduled for: {new Date(post.scheduled_time).toLocaleString()}
+                </div>
+              )}
             </li>
           ))}
         </ul>

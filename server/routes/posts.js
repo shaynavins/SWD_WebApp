@@ -171,38 +171,44 @@ router.get("/api/posts", (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
+  
+
   db.get("SELECT COUNT(*) AS count FROM posts", (err, countRow) => {
     if (err) return res.status(500).json({ error: "Database error" });
 
     const total = countRow.count;
     const hasMore = page * limit < total;
 
-    db.all("SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", [limit, offset], (err, posts) => {
-      if (err) return res.status(500).json({ error: "Failed to fetch posts" });
+    db.all(
+      "SELECT * FROM posts WHERE is_published = 1 ORDER BY id DESC LIMIT ? OFFSET ?",
+      [limit, offset],
+      (err, posts) => {
+        if (err) return res.status(500).json({ error: "Failed to fetch posts" });
 
-      const ids = posts.map((p) => p.id);
-      if (ids.length === 0) return res.json({ posts: [], hasMore: false });
+        const ids = posts.map((p) => p.id);
+        if (ids.length === 0) return res.json({ posts: [], hasMore: false });
 
-      db.all(
-        `SELECT * FROM comments WHERE post_id IN (${ids.map(() => "?").join(",")})`,
-        ids,
-        (err, comments) => {
-          if (err) return res.status(500).json({ error: "Failed to fetch comments" });
+        db.all(
+          `SELECT * FROM comments WHERE post_id IN (${ids.map(() => "?").join(",")})`,
+          ids,
+          (err, comments) => {
+            if (err) return res.status(500).json({ error: "Failed to fetch comments" });
 
-          const result = posts.map((post) => ({
-            ...post,
-            imageUrl: post.image_url,
-            image_url: undefined,
-            comments: comments.filter((c) => c.post_id === post.id),
-          }));
-          
-          res.json({
-            posts: result,
-            hasMore: hasMore
-          });
-        }
-      );
-    });
+            const result = posts.map((post) => ({
+              ...post,
+              imageUrl: post.image_url,
+              image_url: undefined,
+              comments: comments.filter((c) => c.post_id === post.id),
+            }));
+            
+            res.json({
+              posts: result,
+              hasMore: hasMore
+            });
+          }
+        );
+      }
+    );
   });
 });
 
