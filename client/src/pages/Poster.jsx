@@ -5,9 +5,9 @@ export default function Poster() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [image, setImage] = useState(null);
+  const [scheduledTime, setScheduledTime] = useState("");
   const [message, setMessage] = useState("");
   const [posts, setPosts] = useState([]);
-  const [scheduledTime, setScheduledTime] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -17,21 +17,21 @@ export default function Poster() {
         setUsername(payload.username);
       } catch (error) {
         console.error("Error parsing token:", error);
-        setMessage("❌ Authentication error. Please login again.");
+        setMessage("Authentication error. Please login again.");
       }
     } else {
-      setMessage("❌ No authentication token found. Please login.");
+      setMessage("No authentication token found. Please login.");
     }
   }, []);
 
   const createPost = async () => {
     if (!title || !body) {
-      setMessage("❌ Title and body required.");
+      setMessage("Title and body required.");
       return;
     }
 
     if (!username) {
-      setMessage("❌ User not authenticated.");
+      setMessage("User not authenticated.");
       return;
     }
 
@@ -55,17 +55,18 @@ export default function Poster() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage(`✅ Post created: ${data.post.title}`);
+        setMessage(`Post created: ${data.post.title}`);
         setTitle("");
         setBody("");
         setImage(null);
+        setScheduledTime("");
         fetchPosts();
       } else {
-        setMessage(`❌ Error: ${data.error || "Failed to create post"}`);
+        setMessage(`Error: ${data.error || "Failed to create post"}`);
       }
     } catch (err) {
       console.error("Post error:", err);
-      setMessage("❌ Network error.");
+      setMessage("Network error.");
     }
   };
 
@@ -78,7 +79,7 @@ export default function Poster() {
       setPosts(data.posts || []);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
-      setMessage("❌ Could not load posts.");
+      setMessage("Could not load posts.");
     }
   };
 
@@ -113,7 +114,7 @@ export default function Poster() {
         onChange={e => setScheduledTime(e.target.value)}
         style={{ marginBottom: 10 }}
       />
-      <label style={{ marginLeft: 8 }}>Scheduled Time (optional)</label>
+      <label style={{ marginLeft: 8 }}>Scheduled Time (optional)</label><br />
       <button onClick={createPost}>Create Post</button>
 
       {message && <p>{message}</p>}
@@ -127,12 +128,12 @@ export default function Poster() {
             <li key={post.id}>
               <strong>{post.title}</strong><br />
               {post.body}
-              {post.imageUrl && <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} style={{maxWidth: '200px'}} />}
               {post.scheduled_time && (
                 <div style={{ color: "#888", fontSize: 13, marginBottom: 4 }}>
                   Scheduled for: {new Date(post.scheduled_time).toLocaleString()}
                 </div>
               )}
+              {post.imageUrl && <img src={`http://localhost:8080${post.imageUrl}`} alt={post.title} style={{maxWidth: '200px'}} />}
             </li>
           ))}
         </ul>
