@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function Subscribe() {
     const [posters, setPosters] = useState([]);
@@ -49,19 +49,23 @@ export default function Subscribe() {
     }
     };
     return (
-            <div>
-        <h2>Subscribe to:</h2>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <ul>
+      <div style={{ minHeight: '100vh', background: '#181c24', color: '#f5f6fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: '#23283a', borderRadius: 14, boxShadow: '0 4px 24px #0008', padding: 36, minWidth: 320, maxWidth: 350, width: '100%' }}>
+          <h2 style={{ marginBottom: 28, fontWeight: 700, letterSpacing: 1, textAlign: 'center', color: '#f5f6fa' }}>All Poster Usernames</h2>
+          {error && <p style={{ color: '#ff4f4f', marginBottom: 10, textAlign: 'center' }}>{error}</p>}
+          <ul style={{ padding: 0, listStyle: 'none', width: '100%' }}>
             {posters.map((username) => (
-            <li key={username}>
-                {username}
-                <button onClick={() => handleSubscribe(username)}>
+              <li key={username} style={{ background: '#23283a', border: '1px solid #333', borderRadius: 8, padding: 12, marginBottom: 12, color: '#f5f6fa', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px #0008' }}>
+                <span>{username}</span>
+                <button onClick={() => handleSubscribe(username)} style={{ padding: '8px 18px', borderRadius: 8, background: '#4f8cff', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 500, fontSize: 15, transition: 'background 0.2s' }}
+                  onMouseOver={e => e.currentTarget.style.background = '#2563eb'}
+                  onMouseOut={e => e.currentTarget.style.background = '#4f8cff'}>
+                  Subscribe
                 </button> 
-            </li>
-            
+              </li>
             ))}
-        </ul>
+          </ul>
         </div>
+      </div>
     );
 }
