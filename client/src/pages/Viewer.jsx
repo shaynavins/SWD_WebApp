@@ -42,7 +42,7 @@ export default function Viewer() {
     getNextPageParam: (lastPage, pages) => {
       return lastPage.hasMore ? pages.length + 1 : undefined;
     },
-    staleTime: 5 * 60 * 1000, // 5 mins
+    staleTime: 5 * 60 * 1000,
   });
 
   const handleLike = async (postId) => {

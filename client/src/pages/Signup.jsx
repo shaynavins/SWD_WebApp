@@ -1,10 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("poster"); // default role
+  const [role, setRole] = useState("poster");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
